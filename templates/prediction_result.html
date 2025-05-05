@@ -1,0 +1,167 @@
+<!-- templates/prediction_result.html -->
+{% extends 'base.html' %}
+
+{% block title %}Prediction Result{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Prediction Result</h1>
+
+<!-- Situation Card -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Situation</h5>
+    </div>
+    <div class="card-body">
+        <h6>Problem:</h6>
+        <p>{{ problem }}</p>
+        
+        <h6>Options:</h6>
+        <ul>
+            {% for option in options %}
+                <li>{{ option }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Prediction Card -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Prediction</h5>
+    </div>
+    <div class="card-body">
+        {% if prediction.chosen %}
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <h6>Predicted Choice:</h6>
+                    <p class="fw-bold fs-5">{{ prediction.chosen }}</p>
+                    
+                    <h6>Predicted Reasoning:</h6>
+                    <p>{{ prediction.reasoning }}</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>Confidence</h6>
+                            <h2 class="
+                                {% if prediction.confidence|int > 75 %}text-success
+                                {% elif prediction.confidence|int > 40 %}text-warning
+                                {% else %}text-danger{% endif %}
+                            ">
+                                {{ prediction.confidence }}%
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <strong>Unable to make prediction:</strong> {{ prediction.reasoning }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Similar Decisions Card -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Based On</h5>
+    </div>
+    <div class="card-body">
+        {% if prediction.similar_decisions %}
+            <p>This prediction is based on these similar past decisions:</p>
+            <div class="accordion" id="similarDecisionsAccordion">
+                {% for decision in prediction.similar_decisions %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ decision.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ decision.id }}" aria-expanded="false">
+                                Decision #{{ decision.id }} - {{ decision.problem|truncate(30) }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ decision.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ decision.id }}" data-bs-parent="#similarDecisionsAccordion">
+                            <div class="accordion-body">
+                                <h6>Problem:</h6>
+                                <p>{{ decision.problem }}</p>
+                                
+                                <h6>Options:</h6>
+                                <ul>
+                                    {% for option in decision.options %}
+                                        <li>{{ option }}</li>
+                                    {% endfor %}
+                                </ul>
+                                
+                                <h6>Chosen:</h6>
+                                <p>{{ decision.chosen }}</p>
+                                
+                                {% if decision.reasoning %}
+                                    <h6>Reasoning:</h6>
+                                    <p>{{ decision.reasoning }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No similar past decisions found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Feedback Card -->
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">Feedback</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('prediction.feedback') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="problem" value="{{ problem }}">
+            <input type="hidden" name="options" value="{{ options|join('\n') }}">
+            <input type="hidden" name="prediction" value="{{ prediction.chosen }}">
+            
+            <div class="mb-3">
+                <label class="form-label">Was this prediction correct?</label>
+                <select name="correct" class="form-select" id="correctSelect">
+                    <option value="yes">Yes, this is what I would choose</option>
+                    <option value="no">No, I would choose differently</option>
+                </select>
+            </div>
+            
+            <div id="feedbackFields" class="d-none">
+                <div class="mb-3">
+                    <label class="form-label">What would be your actual choice?</label>
+                    <input type="text" name="actual_choice" class="form-control">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">What would be your actual reasoning?</label>
+                    <textarea name="actual_reasoning" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">What was your mood? (optional)</label>
+                    <input type="text" name="actual_mood" class="form-control">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100">Submit Feedback</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const correctSelect = document.getElementById('correctSelect');
+        const feedbackFields = document.getElementById('feedbackFields');
+        
+        correctSelect.addEventListener('change', function() {
+            if (this.value === 'no') {
+                feedbackFields.classList.remove('d-none');
+            } else {
+                feedbackFields.classList.add('d-none');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+<!-- templates/predict.html -->
+{% extends 'base.html' %}
+
+{% block title %}Predict Decision{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Predict My Decision</h1>
+<p>Describe a situation and the system will predict your likely response.</p>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            {{ form.csrf_token }}
+            
+            <div class="mb-3">
+                {{ form.problem.label(class="form-label") }}
+                {{ form.problem(class="form-control", rows=3, placeholder="Describe the new problem or situation") }}
+                {% if form.problem.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.problem.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.options.label(class="form-label") }}
+                {{ form.options(class="form-control", rows=3, placeholder="List each option on a new line") }}
+                {% if form.options.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.options.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Enter each option on a new line</div>
+            </div>
+            
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

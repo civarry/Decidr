@@ -1,0 +1,66 @@
+<!-- templates/add_decision.html -->
+{% extends 'base.html' %}
+
+{% block title %}Add Decision{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Add Decision</h1>
+<p>Record a decision you've made to help the system learn your patterns.</p>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            {{ form.csrf_token }}
+            
+            <div class="mb-3">
+                {{ form.problem.label(class="form-label") }}
+                {{ form.problem(class="form-control", rows=3, placeholder="Describe the problem or situation") }}
+                {% if form.problem.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.problem.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.options.label(class="form-label") }}
+                {{ form.options(class="form-control", rows=3, placeholder="List each option on a new line") }}
+                {% if form.options.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.options.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Enter each option on a new line</div>
+            </div>
+            
+            <div class="mb-3">
+                {{ form.chosen.label(class="form-label") }}
+                {{ form.chosen(class="form-control", placeholder="The option you selected") }}
+                {% if form.chosen.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.chosen.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.reasoning.label(class="form-label") }}
+                {{ form.reasoning(class="form-control", rows=3, placeholder="Explain why you made this choice (optional)") }}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.mood.label(class="form-label") }}
+                {{ form.mood(class="form-control", placeholder="How were you feeling? (optional)") }}
+            </div>
+            
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Decision Mirror{% endblock %}</title>
+    {{ bootstrap.load_css() }}
+    <style>
+        body {
+            padding-bottom: 60px; /* Space for the fixed bottom navigation */
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .section-title {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .card-body {
+            padding: 15px;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .bottom-nav .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+        .bottom-nav .nav-link {
+            padding: 10px 0;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+        .bottom-nav .nav-link.active {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .bottom-nav i {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .mobile-only {
+                display: none;
+            }
+        }
+        @media (max-width: 767px) {
+            .desktop-only {
+                display: none;
+            }
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simple header bar - visible on all screen sizes -->
+    <nav class="navbar navbar-expand navbar-dark bg-primary mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('decision.index') }}">
+                <i class="bi bi-person-check"></i> Decidr
+            </a>
+            <!-- Desktop navigation -->
+            <div class="desktop-only">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('decision.index') %}active{% endif %}" href="{{ url_for('decision.index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('decision.add_decision') %}active{% endif %}" href="{{ url_for('decision.add_decision') }}">Add</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('prediction.predict') %}active{% endif %}" href="{{ url_for('prediction.predict') }}">Predict</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('decision.view_decisions') %}active{% endif %}" href="{{ url_for('decision.view_decisions') }}">History</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bottom Navigation for mobile -->
+    <nav class="navbar navbar-expand navbar-light bg-light bottom-nav mobile-only">
+        <ul class="navbar-nav w-100">
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == url_for('decision.index') %}active{% endif %}" href="{{ url_for('decision.index') }}">
+                    <i class="bi bi-house-door"></i>
+                    Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == url_for('decision.add_decision') %}active{% endif %}" href="{{ url_for('decision.add_decision') }}">
+                    <i class="bi bi-plus-circle"></i>
+                    Add
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == url_for('prediction.predict') %}active{% endif %}" href="{{ url_for('prediction.predict') }}">
+                    <i class="bi bi-lightbulb"></i>
+                    Predict
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == url_for('decision.view_decisions') %}active{% endif %}" href="{{ url_for('decision.view_decisions') }}">
+                    <i class="bi bi-list-ul"></i>
+                    History
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    {{ bootstrap.load_js() }}
+</body>
+</html>

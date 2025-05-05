@@ -1,0 +1,59 @@
+<!-- templates/decisions.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Decisions{% endblock %}
+
+{% block content %}
+<h1 class="section-title">My Decisions</h1>
+<p>A record of all your past decisions.</p>
+
+{% if decisions %}
+    <!-- Mobile view: cards for better touch interaction -->
+    <div class="d-md-none">
+        {% for decision in decisions %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6>#{{ decision.id }} - {{ decision.timestamp[:10] }}</h6>
+                    <p class="mb-1">{{ decision.problem|truncate(50) }}</p>
+                    <p class="text-muted small">Choice: {{ decision.chosen|truncate(30) }}</p>
+                    <a href="{{ url_for('decision.view_decision', decision_id=decision.id) }}" class="btn btn-sm btn-primary">View</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Desktop view: table for more compact display -->
+    <div class="d-none d-md-block">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Problem</th>
+                        <th>Choice</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for decision in decisions %}
+                        <tr>
+                            <td>{{ decision.id }}</td>
+                            <td>{{ decision.timestamp[:10] }}</td>
+                            <td>{{ decision.problem|truncate(50) }}</td>
+                            <td>{{ decision.chosen|truncate(30) }}</td>
+                            <td>
+                                <a href="{{ url_for('decision.view_decision', decision_id=decision.id) }}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <p>No decisions recorded yet. <a href="{{ url_for('decision.add_decision') }}">Add your first decision</a>.</p>
+    </div>
+{% endif %}
+{% endblock %}
