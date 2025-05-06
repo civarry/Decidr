@@ -2,14 +2,14 @@
   {
     "id": 1,
     "timestamp": "2025-05-06T15:05:59.226914",
-    "problem": "I'm completely swamped at work, and I\u2019m struggling to meet all my deadlines.",
+    "problem": "I'm completely swamped at work, and I'm struggling to meet all my deadlines.",
     "options": [
       "Ask my manager for deadline extensions",
       "Work overtime every day this week",
       "Delegate tasks to a colleague"
     ],
     "chosen": "Delegate tasks to a colleague",
-    "reasoning": "I don\u2019t want to burn out, and sharing the workload will help get things done more efficiently.",
+    "reasoning": "I don't want to burn out, and sharing the workload will help get things done more efficiently.",
     "mood": "Stressed but focused on finding a solution"
   },
   {
@@ -28,7 +28,7 @@
   {
     "id": 3,
     "timestamp": "2025-05-06T15:06:37.359040",
-    "problem": "I\u2019ve been offered a new job with better pay, but it would mean working longer hours.",
+    "problem": "I've been offered a new job with better pay, but it would mean working longer hours.",
     "options": [
       "Accept the new job",
       "Stay at my current job",
@@ -41,20 +41,20 @@
   {
     "id": 4,
     "timestamp": "2025-05-06T15:06:57.471804",
-    "problem": "I accidentally missed an important team meeting and now I\u2019m out of the loop.",
+    "problem": "I accidentally missed an important team meeting and now I'm out of the loop.",
     "options": [
       "Ask a colleague for a summary",
       "Pretend I was there and hope no one notices",
       "Own up and ask for the recording or minutes"
     ],
     "chosen": "Own up and ask for the recording or minutes",
-    "reasoning": "I\u2019d rather be honest and stay informed than risk missing something important.",
+    "reasoning": "I'd rather be honest and stay informed than risk missing something important.",
     "mood": "Embarrassed but responsible"
   },
   {
     "id": 5,
     "timestamp": "2025-05-06T15:07:16.665608",
-    "problem": "One of my close friends keeps cancelling our plans at the last minute, and it\u2019s starting to bother me.\r\n\r\n",
+    "problem": "One of my close friends keeps cancelling our plans at the last minute, and it's starting to bother me.\r\n\r\n",
     "options": [
       "Stop making plans with them",
       "Talk to them honestly about how it makes me feel",
@@ -67,7 +67,7 @@
   {
     "id": 6,
     "timestamp": "2025-05-06T16:08:38.239793",
-    "problem": "You\u2019re falling behind in an online course.\r\n\r\n",
+    "problem": "You're falling behind in an online course.\r\n\r\n",
     "options": [
       "Drop the course",
       "Schedule daily study sessions to catch up",
@@ -80,14 +80,183 @@
   {
     "id": 7,
     "timestamp": "2025-05-06T16:10:38.007478",
-    "problem": "I completely forgot my close friend\u2019s birthday, and now I feel terrible.",
+    "problem": "I completely forgot my close friend's birthday, and now I feel terrible.",
     "options": [
       "Apologize and plan a belated celebration",
-      "Send a late message and hope it\u2019s okay",
+      "Send a late message and hope it's okay",
       "Ignore it and make it up next year"
     ],
     "chosen": "Apologize and plan a belated celebration",
-    "reasoning": "They\u2019re important to me, and I want to make it up to them in a meaningful way.\r\n\r\n",
+    "reasoning": "They're important to me, and I want to make it up to them in a meaningful way.\r\n\r\n",
     "mood": "Guilty but caring"
+  },
+  {
+    "id": 8,
+    "timestamp": "2025-05-06T16:15:12.123456",
+    "problem": "I'm feeling burnt out after weeks of nonstop work and no breaks.",
+    "options": [
+      "Push through and keep working",
+      "Take a mental health day off",
+      "Talk to my manager about workload"
+    ],
+    "chosen": "Take a mental health day off",
+    "reasoning": "I need to recharge to avoid long-term burnout and be more productive later.",
+    "mood": "Exhausted but proactive"
+  },
+  {
+    "id": 9,
+    "timestamp": "2025-05-06T16:20:45.654321",
+    "problem": "I'm nervous about giving a presentation to senior leadership tomorrow.",
+    "options": [
+      "Practice repeatedly until I feel confident",
+      "Wing it and hope for the best",
+      "Ask a colleague for feedback on my slides"
+    ],
+    "chosen": "Practice repeatedly until I feel confident",
+    "reasoning": "Preparation will help calm my nerves and improve my delivery.",
+    "mood": "Anxious but motivated"
+  },
+  {
+    "id": 10,
+    "timestamp": "2025-05-06T16:25:30.987654",
+    "problem": "I want to start exercising regularly but keep procrastinating.",
+    "options": [
+      "Join a gym with a friend",
+      "Set small daily goals to build habit",
+      "Wait until I feel more motivated"
+    ],
+    "chosen": "Set small daily goals to build habit",
+    "reasoning": "Small, consistent steps are more sustainable than waiting for motivation.",
+    "mood": "Unmotivated but hopeful"
+  },
+  {
+    "id": 11,
+    "timestamp": "2025-05-06T16:30:12.345678",
+    "problem": "I accidentally sent an email with a typo to a client.",
+    "options": [
+      "Ignore it and hope they don't notice",
+      "Send a quick correction email",
+      "Make a joke about it in the next email"
+    ],
+    "chosen": "Send a quick correction email",
+    "reasoning": "Being transparent shows professionalism and attention to detail.",
+    "mood": "Embarrassed but responsible"
+  },
+  {
+    "id": 12,
+    "timestamp": "2025-05-06T16:35:50.876543",
+    "problem": "I'm struggling to balance work and personal life.",
+    "options": [
+      "Work fewer hours and accept lower productivity",
+      "Set clear boundaries and schedule personal time",
+      "Ignore personal time and focus on work"
+    ],
+    "chosen": "Set clear boundaries and schedule personal time",
+    "reasoning": "Balance is important for long-term wellbeing and effectiveness.",
+    "mood": "Conflicted but determined"
+  },
+  {
+    "id": 13,
+    "timestamp": "2025-05-06T16:40:22.234567",
+    "problem": "I want to improve my public speaking skills.",
+    "options": [
+      "Join a local Toastmasters club",
+      "Watch online tutorials",
+      "Avoid public speaking opportunities"
+    ],
+    "chosen": "Join a local Toastmasters club",
+    "reasoning": "Practice in a supportive environment will build confidence faster.",
+    "mood": "Nervous but eager"
+  },
+  {
+    "id": 14,
+    "timestamp": "2025-05-06T16:45:11.345678",
+    "problem": "I'm feeling disconnected from my team after remote work started.",
+    "options": [
+      "Schedule regular virtual hangouts",
+      "Focus only on work tasks",
+      "Wait until things go back to normal"
+    ],
+    "chosen": "Schedule regular virtual hangouts",
+    "reasoning": "Building personal connections will improve teamwork and morale.",
+    "mood": "Lonely but hopeful"
+  },
+  {
+    "id": 15,
+    "timestamp": "2025-05-06T16:50:44.456789",
+    "problem": "I'm unsure whether to invest in a new skill or save money.",
+    "options": [
+      "Invest in the skill for long-term benefits",
+      "Save money and wait for a better opportunity",
+      "Ask friends for advice"
+    ],
+    "chosen": "Invest in the skill for long-term benefits",
+    "reasoning": "Developing skills can open new opportunities and improve career prospects.",
+    "mood": "Cautious but optimistic"
+  },
+  {
+    "id": 16,
+    "timestamp": "2025-05-06T16:55:33.567890",
+    "problem": "I'm feeling overwhelmed by negative news lately.",
+    "options": [
+      "Limit news consumption",
+      "Engage in community volunteering",
+      "Ignore the news completely"
+    ],
+    "chosen": "Limit news consumption",
+    "reasoning": "Reducing exposure helps protect my mental health without disconnecting completely.",
+    "mood": "Anxious but mindful"
+  },
+  {
+    "id": 17,
+    "timestamp": "2025-05-06T17:00:21.678901",
+    "problem": "I want to improve my diet but find it hard to resist junk food.",
+    "options": [
+      "Replace junk food with healthier snacks",
+      "Go on a strict diet immediately",
+      "Ignore it and try later"
+    ],
+    "chosen": "Replace junk food with healthier snacks",
+    "reasoning": "Gradual changes are more sustainable and less overwhelming.",
+    "mood": "Frustrated but hopeful"
+  },
+  {
+    "id": 18,
+    "timestamp": "2025-05-06T17:05:10.789012",
+    "problem": "I'm having trouble focusing during long meetings.",
+    "options": [
+      "Take notes actively",
+      "Multitask during meetings",
+      "Ask for shorter meetings"
+    ],
+    "chosen": "Take notes actively",
+    "reasoning": "Engaging helps maintain focus and retain information better.",
+    "mood": "Distracted but proactive"
+  },
+  {
+    "id": 19,
+    "timestamp": "2025-05-06T17:10:05.890123",
+    "problem": "I want to build a better morning routine.",
+    "options": [
+      "Wake up an hour earlier",
+      "Start with small changes like drinking water first",
+      "Keep my current routine"
+    ],
+    "chosen": "Start with small changes like drinking water first",
+    "reasoning": "Small habits are easier to maintain and build momentum.",
+    "mood": "Motivated but cautious"
+  },
+  {
+    "id": 20,
+    "timestamp": "2025-05-06T17:15:00.901234",
+    "problem": "I'm worried about an upcoming performance review.",
+    "options": [
+      "Prepare by reviewing my achievements",
+      "Avoid thinking about it",
+      "Ask a mentor for advice"
+    ],
+    "chosen": "Prepare by reviewing my achievements",
+    "reasoning": "Being prepared will help me feel more confident and ready to discuss my performance.",
+    "mood": "Nervous but determined"
   }
 ]
