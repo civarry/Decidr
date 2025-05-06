@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2025-05-06T15:05:59.226914",
+    "problem": "I'm completely swamped at work, and I\u2019m struggling to meet all my deadlines.",
+    "options": [
+      "Ask my manager for deadline extensions",
+      "Work overtime every day this week",
+      "Delegate tasks to a colleague"
+    ],
+    "chosen": "Delegate tasks to a colleague",
+    "reasoning": "I don\u2019t want to burn out, and sharing the workload will help get things done more efficiently.",
+    "mood": "Stressed but focused on finding a solution"
+  },
+  {
+    "id": 2,
+    "timestamp": "2025-05-06T15:06:20.055117",
+    "problem": "I received some tough feedback on a project I put a lot of effort into.",
+    "options": [
+      "Get defensive and justify my choices",
+      "Ask for clarification and suggestions for improvement",
+      "Ignore the feedback and move on"
+    ],
+    "chosen": "Ask for clarification and suggestions for improvement",
+    "reasoning": "I want to grow and learn from the feedback, even if it was hard to hear.",
+    "mood": "Disappointed but open-minded"
+  },
+  {
+    "id": 3,
+    "timestamp": "2025-05-06T15:06:37.359040",
+    "problem": "I\u2019ve been offered a new job with better pay, but it would mean working longer hours.",
+    "options": [
+      "Accept the new job",
+      "Stay at my current job",
+      "Negotiate with both companies for better terms"
+    ],
+    "chosen": "Negotiate with both companies for better terms",
+    "reasoning": "I want to explore all my options before making a major decision.",
+    "mood": "Hopeful but cautious"
+  },
+  {
+    "id": 4,
+    "timestamp": "2025-05-06T15:06:57.471804",
+    "problem": "I accidentally missed an important team meeting and now I\u2019m out of the loop.",
+    "options": [
+      "Ask a colleague for a summary",
+      "Pretend I was there and hope no one notices",
+      "Own up and ask for the recording or minutes"
+    ],
+    "chosen": "Own up and ask for the recording or minutes",
+    "reasoning": "I\u2019d rather be honest and stay informed than risk missing something important.",
+    "mood": "Embarrassed but responsible"
+  },
+  {
+    "id": 5,
+    "timestamp": "2025-05-06T15:07:16.665608",
+    "problem": "One of my close friends keeps cancelling our plans at the last minute, and it\u2019s starting to bother me.\r\n\r\n",
+    "options": [
+      "Stop making plans with them",
+      "Talk to them honestly about how it makes me feel",
+      "Keep inviting them anyway"
+    ],
+    "chosen": "Talk to them honestly about how it makes me feel",
+    "reasoning": "I care about the friendship and want to resolve the issue instead of avoiding it.",
+    "mood": "Frustrated but hopeful"
+  }
+]

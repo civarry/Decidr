@@ -77,3 +77,14 @@ def delete_decision(decision_id):
         flash(f'Failed to delete decision #{decision_id}', 'danger')
     
     return redirect(url_for('decision.view_decisions'))
+
+@decision_bp.route('/regenerate_embeddings', methods=['POST'])
+def regenerate_embeddings():
+    """Regenerate all embeddings."""
+    try:
+        decision_mirror.regenerate_all_embeddings()
+        flash('All embeddings have been regenerated successfully!', 'success')
+    except Exception as e:
+        flash(f'Error regenerating embeddings: {str(e)}', 'danger')
+    
+    return redirect(url_for('decision.index'))

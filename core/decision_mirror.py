@@ -7,6 +7,9 @@ from typing import List, Dict, Any, Optional
 from core.llm_client import LLMClient
 from models.decision import Decision
 
+from chromadb import Client, Settings
+from chromadb.utils import embedding_functions
+
 
 class DecisionMirror:
     """
@@ -15,14 +18,6 @@ class DecisionMirror:
     """
     
     def __init__(self, api_key: str, model: str, data_dir: str = "decision_data"):
-        """
-        Initialize the Decision Mirror system.
-        
-        Args:
-            api_key: Your Groq API key
-            model: The LLM model to use for prediction
-            data_dir: Directory to store decision data
-        """
         # Initialize the LLM client
         self.llm_client = LLMClient(api_key=api_key, model=model)
         
@@ -36,9 +31,47 @@ class DecisionMirror:
         # Load existing decisions or create empty database
         self.decisions = self._load_decisions()
         
-        # Path to embeddings cache
-        self.embeddings_path = self.data_dir / "embeddings.json"
-        self.embeddings = self._load_embeddings()
+        # Initialize Chroma client
+        self.chroma_dir = self.data_dir / "chroma_db"
+        self.chroma_dir.mkdir(exist_ok=True)  # Ensure chroma directory exists
+        
+        # CHANGE: Use PersistentClient instead of Client with Settings
+        # This forces ChromaDB to use persistent storage
+        try:
+            self.chroma_client = PersistentClient(path=str(self.chroma_dir))
+            print(f"Successfully initialized PersistentClient at {self.chroma_dir}")
+        except Exception as e:
+            print(f"Error initializing PersistentClient: {e}")
+            # Fall back to regular client if PersistentClient fails
+            self.chroma_client = Client(Settings(
+                persist_directory=str(self.chroma_dir),
+                anonymized_telemetry=False,
+                is_persistent=True  # Explicitly set persistence flag
+            ))
+            print(f"Falling back to regular Client with is_persistent=True")
+        
+        # Create or get the collection
+        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
+        
+        # Check if collection exists
+        collection_names = self.chroma_client.list_collections()
+        collection_exists = any(c.name == "decisions" for c in collection_names)
+        
+        if collection_exists:
+            self.collection = self.chroma_client.get_collection(
+                name="decisions",
+                embedding_function=self.embedding_function
+            )
+        else:
+            self.collection = self.chroma_client.create_collection(
+                name="decisions",
+                embedding_function=self.embedding_function
+            )
+        
+        # Ensure all decisions are in Chroma
+        self._sync_decisions_to_chroma()
     
     def _load_decisions(self) -> List[Decision]:
         """Load existing decisions from file or create empty list."""
@@ -48,43 +81,41 @@ class DecisionMirror:
                 return [Decision.from_dict(d) for d in decision_dicts]
         return []
     
-    def _load_embeddings(self) -> Dict[str, List[float]]:
-        """Load existing embeddings from file or create empty dict."""
-        if self.embeddings_path.exists():
-            with open(self.embeddings_path, 'r') as f:
-                return json.load(f)
-        return {}
-    
     def _save_decisions(self) -> None:
         """Save decisions to file."""
         decision_dicts = [d.to_dict() for d in self.decisions]
         with open(self.decisions_path, 'w') as f:
             json.dump(decision_dicts, f, indent=2)
-    
-    def _save_embeddings(self) -> None:
-        """Save embeddings to file."""
-        with open(self.embeddings_path, 'w') as f:
-            json.dump(self.embeddings, f, indent=2)
-    
-    def add_decision(self, 
-                    problem: str, 
-                    options: List[str], 
-                    chosen: str, 
-                    reasoning: Optional[str] = None, 
-                    mood: Optional[str] = None) -> Decision:
-        """
-        Add a new decision to the database.
+
+    def _sync_decisions_to_chroma(self):
+        """Ensure all decisions are in the Chroma database"""
+        # Get existing decision IDs in Chroma
+        if self.collection.count() == 0:
+            existing_ids = []
+        else:
+            existing_ids = [str(id) for id in self.collection.get()["ids"]]
         
-        Args:
-            problem: The problem or situation
-            options: List of possible options
-            chosen: The option you chose
-            reasoning: Your reasoning for the decision
-            mood: Your mood or emotional state at the time
-            
-        Returns:
-            The newly added decision record
-        """
+        # Add any missing decisions to Chroma
+        for decision in self.decisions:
+            decision_id = str(decision.id)
+            if decision_id not in existing_ids:
+                text = self._prepare_text_for_embedding(decision)
+                metadata = {
+                    "problem": decision.problem,
+                    "chosen": decision.chosen,
+                    "mood": decision.mood or ""
+                }
+                self.collection.add(
+                    ids=[decision_id],
+                    documents=[text],
+                    metadatas=[metadata]
+                )
+        
+        # Note: With ChromaDB with a persist_directory, 
+        # persistence should happen automatically
+    
+    def add_decision(self, problem: str, options: List[str], chosen: str, 
+                    reasoning: Optional[str] = None, mood: Optional[str] = None) -> Decision:
         # Create new decision with next ID
         new_id = len(self.decisions) + 1
         decision = Decision.create(
@@ -100,53 +131,64 @@ class DecisionMirror:
         self.decisions.append(decision)
         self._save_decisions()
         
-        # Create and store embedding for this decision
-        decision_text = f"Problem: {problem}\nOptions: {', '.join(options)}\nChosen: {chosen}"
-        if reasoning:
-            decision_text += f"\nReasoning: {reasoning}"
-        if mood:
-            decision_text += f"\nMood: {mood}"
-            
-        decision_id = str(decision.id)
-        self.embeddings[decision_id] = self.llm_client.get_embedding(decision_text)
-        self._save_embeddings()
+        # Add to Chroma
+        decision_text = self._prepare_text_for_embedding(decision)
+        metadata = {
+            "problem": decision.problem,
+            "chosen": decision.chosen,
+            "mood": decision.mood or ""
+        }
+        self.collection.add(
+            ids=[str(decision.id)],
+            documents=[decision_text],
+            metadatas=[metadata]
+        )
         
         return decision
     
-    def find_similar_decisions(self, problem: str, top_k: int = 3) -> List[Decision]:
+    def _prepare_text_for_embedding(self, decision: Decision) -> str:
         """
-        Find decisions similar to the given problem.
+        Prepare decision text for embedding in a consistent format.
         
         Args:
-            problem: The problem to find similar decisions for
-            top_k: Number of similar decisions to return
+            decision: The decision to prepare text for
             
         Returns:
-            List of similar decisions
+            Formatted text ready for embedding
         """
+        text_parts = [
+            f"Problem: {decision.problem}",
+            f"Options: {', '.join(decision.options)}",
+            f"Chosen: {decision.chosen}"
+        ]
+        
+        if decision.reasoning:
+            text_parts.append(f"Reasoning: {decision.reasoning}")
+        if decision.mood:
+            text_parts.append(f"Mood: {decision.mood}")
+            
+        return " ".join(text_parts)
+    
+    def find_similar_decisions(self, problem: str, top_k: int = 3) -> List[Decision]:
+        """Find decisions similar to the given problem."""
         if not self.decisions:
             return []
         
-        # Get embedding for the query
-        query_embedding = self.llm_client.get_embedding(problem)
+        # Query Chroma for similar decisions
+        results = self.collection.query(
+            query_texts=[problem],
+            n_results=top_k
+        )
         
-        # Calculate similarities
-        similarities = []
-        for decision in self.decisions:
-            decision_id = str(decision.id)
-            if decision_id in self.embeddings:
-                embedding = self.embeddings[decision_id]
-                # Calculate cosine similarity
-                similarity = np.dot(query_embedding, embedding) / (
-                    np.linalg.norm(query_embedding) * np.linalg.norm(embedding)
-                )
-                similarities.append((decision, similarity))
+        # Map results back to Decision objects
+        similar_decisions = []
+        for id in results["ids"][0]:  # First element because we have a single query
+            decision_id = int(id)
+            decision = self.get_decision(decision_id)
+            if decision:
+                similar_decisions.append(decision)
         
-        # Sort by similarity (descending)
-        similarities.sort(key=lambda x: x[1], reverse=True)
-        
-        # Return top-k similar decisions
-        return [decision for decision, _ in similarities[:top_k]]
+        return similar_decisions
     
     def predict_decision(self, 
                         problem: str, 
@@ -224,11 +266,11 @@ class DecisionMirror:
             # Add similar decisions to the prediction
             prediction["similar_decisions"] = similar_decisions
             return prediction
-        except:
+        except Exception as e:
             # Fallback if parsing fails
             return {
                 "chosen": None,
-                "reasoning": "Failed to parse prediction from model.",
+                "reasoning": f"Failed to parse prediction from model: {str(e)}",
                 "confidence": 0.0,
                 "raw_response": response,
                 "similar_decisions": similar_decisions
@@ -254,9 +296,44 @@ class DecisionMirror:
             if decision.id == decision_id:
                 self.decisions.pop(i)
                 self._save_decisions()
-                # Also remove from embeddings
-                if str(decision_id) in self.embeddings:
-                    del self.embeddings[str(decision_id)]
-                    self._save_embeddings()
+                # Also remove from Chroma
+                self.collection.delete(ids=[str(decision_id)])
                 return True
         return False
+        
+    def regenerate_all_embeddings(self) -> int:
+        """
+        Regenerate embeddings for all decisions using ChromaDB.
+        This is useful after updating the embedding model.
+        
+        Returns:
+            The number of decisions processed
+        """
+        # Delete the collection if it exists
+        try:
+            self.chroma_client.delete_collection("decisions")
+        except Exception as e:
+            print(f"Note: Could not delete collection: {e}")
+            pass  # Collection might not exist
+        
+        # Recreate the collection
+        self.collection = self.chroma_client.create_collection(
+            name="decisions",
+            embedding_function=self.embedding_function
+        )
+        
+        # Add all decisions to the collection
+        for decision in self.decisions:
+            decision_text = self._prepare_text_for_embedding(decision)
+            metadata = {
+                "problem": decision.problem,
+                "chosen": decision.chosen,
+                "mood": decision.mood or ""
+            }
+            self.collection.add(
+                ids=[str(decision.id)],
+                documents=[decision_text],
+                metadatas=[metadata]
+            )
+        
+        return len(self.decisions)

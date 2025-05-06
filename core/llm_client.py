@@ -1,7 +1,7 @@
 import requests
 import json
-import hashlib
 from typing import List, Dict, Any, Optional
+from sentence_transformers import SentenceTransformer
 
 class LLMClient:
     """
@@ -24,6 +24,9 @@ class LLMClient:
             "Content-Type": "application/json"
         }
         self.api_url = "https://api.groq.com/openai/v1/chat/completions"
+        
+        # Initialize the SentenceTransformer model for embeddings
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
     
     def call_llm(self, prompt: str, max_tokens: int = 500) -> str:
         """
@@ -67,10 +70,7 @@ class LLMClient:
     
     def get_embedding(self, text: str) -> List[float]:
         """
-        Get embedding for text using the LLM.
-        
-        In a production system, you would use a dedicated embedding model.
-        This is a simplified approach for the prototype.
+        Get embedding for text using the SentenceTransformer model.
         
         Args:
             text: The text to embed
@@ -78,14 +78,14 @@ class LLMClient:
         Returns:
             A list of floats representing the embedding
         """
-        # For simplicity, we'll use the LLM to generate embeddings
-        response = self.call_llm(
-            prompt=f"Convert the following text to a concise vector representation by listing its key features and concepts: {text}",
-            max_tokens=100
-        )
-        print(response)
-        
-        # For now, we'll use a simple hash-based approach for demo purposes
-        hash_value = hashlib.md5(response.encode()).digest()
-        # Convert to 32 floats between -1 and 1
-        return [(b / 127.5) - 1 for b in hash_value]
+        # Use the SentenceTransformer model to get embeddings
+        try:
+            # Generate embedding
+            embedding = self.embedding_model.encode(text)
+            
+            # Convert numpy array to list for serialization
+            return embedding.tolist()
+        except Exception as e:
+            print(f"Error generating embedding: {str(e)}")
+            # Return a zero vector as fallback (adjust dimension if needed)
+            return [0.0] * 384  # all-MiniLM-L6-v2 has 384 dimensions
