@@ -63,5 +63,31 @@
     "chosen": "Talk to them honestly about how it makes me feel",
     "reasoning": "I care about the friendship and want to resolve the issue instead of avoiding it.",
     "mood": "Frustrated but hopeful"
+  },
+  {
+    "id": 6,
+    "timestamp": "2025-05-06T16:08:38.239793",
+    "problem": "You\u2019re falling behind in an online course.\r\n\r\n",
+    "options": [
+      "Drop the course",
+      "Schedule daily study sessions to catch up",
+      "Skip the early modules and jump ahead"
+    ],
+    "chosen": "Schedule daily study sessions to catch up",
+    "reasoning": "Structured effort gives the best chance to complete and learn",
+    "mood": "Overwhelmed but determined"
+  },
+  {
+    "id": 7,
+    "timestamp": "2025-05-06T16:10:38.007478",
+    "problem": "I completely forgot my close friend\u2019s birthday, and now I feel terrible.",
+    "options": [
+      "Apologize and plan a belated celebration",
+      "Send a late message and hope it\u2019s okay",
+      "Ignore it and make it up next year"
+    ],
+    "chosen": "Apologize and plan a belated celebration",
+    "reasoning": "They\u2019re important to me, and I want to make it up to them in a meaningful way.\r\n\r\n",
+    "mood": "Guilty but caring"
   }
 ]

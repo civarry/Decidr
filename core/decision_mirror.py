@@ -8,7 +8,6 @@ from core.llm_client import LLMClient
 from models.decision import Decision
 
 from chromadb import Client, Settings
-from chromadb.utils import embedding_functions
 
 
 class DecisionMirror:
@@ -35,43 +34,42 @@ class DecisionMirror:
         self.chroma_dir = self.data_dir / "chroma_db"
         self.chroma_dir.mkdir(exist_ok=True)  # Ensure chroma directory exists
         
-        # CHANGE: Use PersistentClient instead of Client with Settings
-        # This forces ChromaDB to use persistent storage
-        try:
-            self.chroma_client = PersistentClient(path=str(self.chroma_dir))
-            print(f"Successfully initialized PersistentClient at {self.chroma_dir}")
-        except Exception as e:
-            print(f"Error initializing PersistentClient: {e}")
-            # Fall back to regular client if PersistentClient fails
-            self.chroma_client = Client(Settings(
-                persist_directory=str(self.chroma_dir),
-                anonymized_telemetry=False,
-                is_persistent=True  # Explicitly set persistence flag
-            ))
-            print(f"Falling back to regular Client with is_persistent=True")
+        # Initialize ChromaDB client correctly
+        self.chroma_client = Client(Settings(
+            persist_directory=str(self.chroma_dir),
+            anonymized_telemetry=False,
+            is_persistent=True
+        ))
         
-        # Create or get the collection
-        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+        # Create or get the collection with sentence transformer embeddings
+        self.embedding_function = self._initialize_embedding_function()
+        self.collection = self._get_or_create_collection()
+        
+        # Ensure all decisions are in Chroma
+        self._sync_decisions_to_chroma()
+    
+    def _initialize_embedding_function(self):
+        """Initialize the embedding function for vector search."""
+        from chromadb.utils import embedding_functions
+        return embedding_functions.SentenceTransformerEmbeddingFunction(
             model_name="all-MiniLM-L6-v2"
         )
-        
-        # Check if collection exists
+    
+    def _get_or_create_collection(self):
+        """Get existing collection or create a new one."""
         collection_names = self.chroma_client.list_collections()
         collection_exists = any(c.name == "decisions" for c in collection_names)
         
         if collection_exists:
-            self.collection = self.chroma_client.get_collection(
-                name="decisions",
+            return self.chroma_client.get_collection(
+                name="decisions", 
                 embedding_function=self.embedding_function
             )
         else:
-            self.collection = self.chroma_client.create_collection(
+            return self.chroma_client.create_collection(
                 name="decisions",
                 embedding_function=self.embedding_function
             )
-        
-        # Ensure all decisions are in Chroma
-        self._sync_decisions_to_chroma()
     
     def _load_decisions(self) -> List[Decision]:
         """Load existing decisions from file or create empty list."""
@@ -110,12 +108,10 @@ class DecisionMirror:
                     documents=[text],
                     metadatas=[metadata]
                 )
-        
-        # Note: With ChromaDB with a persist_directory, 
-        # persistence should happen automatically
     
     def add_decision(self, problem: str, options: List[str], chosen: str, 
                     reasoning: Optional[str] = None, mood: Optional[str] = None) -> Decision:
+        """Add a new decision and update embeddings."""
         # Create new decision with next ID
         new_id = len(self.decisions) + 1
         decision = Decision.create(
@@ -144,18 +140,13 @@ class DecisionMirror:
             metadatas=[metadata]
         )
         
+        # Rebuild embeddings after adding new decision
+        self.regenerate_all_embeddings()
+        
         return decision
     
     def _prepare_text_for_embedding(self, decision: Decision) -> str:
-        """
-        Prepare decision text for embedding in a consistent format.
-        
-        Args:
-            decision: The decision to prepare text for
-            
-        Returns:
-            Formatted text ready for embedding
-        """
+        """Prepare decision text for embedding in a consistent format."""
         text_parts = [
             f"Problem: {decision.problem}",
             f"Options: {', '.join(decision.options)}",
@@ -190,18 +181,9 @@ class DecisionMirror:
         
         return similar_decisions
     
-    def predict_decision(self, 
-                        problem: str, 
-                        options: List[str]) -> Dict[str, Any]:
+    def predict_decision(self, problem: str, options: List[str]) -> Dict[str, Any]:
         """
         Predict how you would decide in a given situation.
-        
-        Args:
-            problem: The problem or situation
-            options: List of possible options
-            
-        Returns:
-            Prediction including chosen option, reasoning, and confidence
         """
         # Find similar past decisions
         similar_decisions = self.find_similar_decisions(problem)
@@ -243,7 +225,6 @@ class DecisionMirror:
         2. Their likely reasoning
         3. Your confidence in this prediction (0-100%)
 
-        DO NOT HALLUCINATE. Only use patterns from the provided past decisions.
         Format your response as a JSON object with keys: "chosen", "reasoning", and "confidence".
         """
         
@@ -291,29 +272,27 @@ class DecisionMirror:
         return None
 
     def delete_decision(self, decision_id: int) -> bool:
-        """Delete a decision by ID."""
+        """Delete a decision by ID and regenerate embeddings."""
         for i, decision in enumerate(self.decisions):
             if decision.id == decision_id:
                 self.decisions.pop(i)
                 self._save_decisions()
                 # Also remove from Chroma
                 self.collection.delete(ids=[str(decision_id)])
+                # Regenerate embeddings after deletion
+                self.regenerate_all_embeddings()
                 return True
         return False
         
     def regenerate_all_embeddings(self) -> int:
         """
         Regenerate embeddings for all decisions using ChromaDB.
-        This is useful after updating the embedding model.
-        
-        Returns:
-            The number of decisions processed
+        Returns the number of decisions processed.
         """
         # Delete the collection if it exists
         try:
             self.chroma_client.delete_collection("decisions")
-        except Exception as e:
-            print(f"Note: Could not delete collection: {e}")
+        except Exception:
             pass  # Collection might not exist
         
         # Recreate the collection
